@@ -4,27 +4,64 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // The `/api/products` endpoint
 
 // get all products
-router.get('/categories', async (req, res) => {
-    // Product.findAll({
-    //   include: {
-    //     model: Product, 
-    //     attributes: ["id", "product_name", "price", "stock", "category_id"],
-       try {
-        const categories = await Category.findAll();
-        res.json(categories);
-          } catch (error) {
-            console.error('Error fetching categories:', error);
-            res.status(500).json({ error: 'Internal Server Error'});
-          }
-      });
-    // })
+// router.get('/', async (req, res) => {
+//   Product.findAll({
+//     include: {
+//       model: productData,
+//       attributes: ["id" , "product_name", "price", "stock", "category_id"],
+//     },
+//   })
+//     .then((categoryDB) => {
+//       if (!categoryDB) {
+//         res.status(404).json({ message: "Categories not found" });
+//         return;
+//       }
+//       res.json(categoryDB);
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       res.status(500).json(err);
+//     });
 // });
+router.get('/', async (req, res) => {
+  try {
+    // Fetch all products from the database
+    const products = await Product.findAll();
+
+    // Send the products as a JSON response
+    res.json(products);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
 
 // get one product
-router.get('/:id', (req, res) => {
-  // find a single product by its `id`
-  // be sure to include its associated Category and Tag data
-});
+// router.get('/:id', (req, res) => {
+//   // find a single product by its `id`
+//   // be sure to include its associated Category and Tag data
+// });
+// router.get('/:id', (req, res) => {
+  router.get('/:id', async (req, res) => {
+    const productId = req.params.id; // Get the product ID from the URL
+  
+    try {
+      // Find the product by ID in the database
+      const product = await Product.findByPk(productId);
+  
+      // Check if the product exists
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+  
+      // Send the product as a JSON response
+      res.json(product);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server Error' });
+    }
+  });
+
 
 // create new product
 router.post('/', (req, res) => {
