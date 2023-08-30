@@ -141,7 +141,38 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-  // delete one product by its `id` value
+  // Extract the product ID from the URL parameters
+  const productId = req.params.id;
+
+  // First, delete associated product tags
+  ProductTag.destroy({
+    where: {
+      product_id: productId,
+    },
+  })
+    .then(() => {
+      // Once the associated product tags are deleted, you can delete the product itself
+      return Product.destroy({
+        where: {
+          id: productId,
+        },
+      });
+    })
+    .then((numDeleted) => {
+      if (numDeleted === 1) {
+        // The product was successfully deleted
+        res.status(200).json({ message: 'Product deleted successfully' });
+      } else {
+        // No product was found with the given ID
+        res.status(404).json({ message: 'Product not found' });
+      }
+    })
+    .catch((err) => {
+      // Handle any errors that occur during deletion
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    });
 });
+
 
 module.exports = router;
