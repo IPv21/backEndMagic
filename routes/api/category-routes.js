@@ -39,6 +39,8 @@ router.get("/", (req, res) => {
     });
 });
 
+
+
 router.get('/:id', (req, res) => {
   console.log('get category by id,id = ', req.params.id)
   Category.findOne({
@@ -90,6 +92,18 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
+  Category.destroy( {
+    where: {
+      id: req.params.id
+    }
+  })
+  .then((Category) => {
+    res.status(200).json(Category)
+  })
+  .catch((err) => {
+    res.status(400).json(err);
+  })
+
   // delete a category by its `id` value
 });
 
