@@ -75,7 +75,7 @@ router.post('/', (req, res) => {
   */
   Product.create(req.body)
     .then((product) => {
-      // if there's product tags, we need to create pairings to bulk create in the ProductTag model
+   
       if (req.body.tagIds.length) {
         const productTagIdArr = req.body.tagIds.map((tag_id) => {
           return {
@@ -85,7 +85,7 @@ router.post('/', (req, res) => {
         });
         return ProductTag.bulkCreate(productTagIdArr);
       }
-      // if no product tags, just respond
+
       res.status(200).json(product);
     })
     .then((productTagIds) => res.status(200).json(productTagIds))
@@ -94,6 +94,7 @@ router.post('/', (req, res) => {
       res.status(400).json(err);
     });
 });
+
 
 // update product
 router.put('/:id', (req, res) => {
@@ -141,37 +142,23 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-  // Extract the product ID from the URL parameters
-  const productId = req.params.id;
-
-  // First, delete associated product tags
-  ProductTag.destroy({
+  // delete one product by its `id` value
+  Product.destroy({
     where: {
-      product_id: productId,
-    },
+      id: req.params.id
+    }
   })
-    .then(() => {
-      // Once the associated product tags are deleted, you can delete the product itself
-      return Product.destroy({
-        where: {
-          id: productId,
-        },
-      });
-    })
-    .then((numDeleted) => {
-      if (numDeleted === 1) {
-        // The product was successfully deleted
-        res.status(200).json({ message: 'Product deleted successfully' });
-      } else {
-        // No product was found with the given ID
-        res.status(404).json({ message: 'Product not found' });
-      }
-    })
-    .catch((err) => {
-      // Handle any errors that occur during deletion
-      console.error(err);
-      res.status(500).json({ message: 'Internal server error' });
-    });
+  .then(dbProductData => {
+    if (!dbProductData) {
+      res.status(404).json({ message: "No product found with this ID"});
+      return;
+    }
+    res.json(dbProductData)
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+  })
 });
 
 
