@@ -1,16 +1,54 @@
 const router = require('express').Router();
 const { Tag, Product, ProductTag } = require('../../models');
 
-// The `/api/tags` endpoint
 
-router.get('/', (req, res) => {
-  // find all tags
-  // be sure to include its associated Product data
+
+
+router.get("/", (req, res) => {
+  // find all tags and include their associated Products
+  Tag.findAll({
+    include: {
+      model: Product, // Include the Product model
+      attributes: ["id", "product_name"]
+    },
+  })
+    .then((tagDB) => {
+      if (!tagDB) {
+        res.status(404).json({ message: "Tag not found" });
+        return;
+      }
+      res.json(tagDB);
+      console.log(tagDB);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
+    });
 });
 
+
 router.get('/:id', (req, res) => {
-  // find a single tag by its `id`
-  // be sure to include its associated Product data
+  console.log('get category by id,id = ', req.params.id)
+  Tag.findOne({
+    where: {
+      id: req.params.id
+
+    },
+    include: [
+      Product
+    ],
+
+
+  }) 
+  .then((Tag) => {
+    res.json(Tag)
+  }) 
+  .catch((err) => {
+    res.status(400).json(err);
+  })
+  
+  // find one category by its `id` value
+  // be sure to include its associated Products
 });
 
 router.post('/', (req, res) => {
