@@ -154,6 +154,7 @@ router.delete('/:id', (req, res) => {
       return;
     }
     res.json(dbProductData)
+    console.log(dbProductData);
   })
   .catch(err => {
     console.log(err);
